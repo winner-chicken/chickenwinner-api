@@ -1,4 +1,5 @@
 import { PartialType } from '@nestjs/mapped-types';
+import { Transform } from 'class-transformer';
 import {
   IsString,
   IsOptional,
@@ -8,7 +9,6 @@ import {
   Length,
   IsUrl,
   IsNotEmpty,
-  IsCreditCard,
   Matches,
 } from 'class-validator';
 
@@ -50,7 +50,6 @@ export class UserDto {
   @Length(16, 16, {
     message: 'El número de la tarjeta de crédito debe tener 16 dígitos',
   })
-  @IsCreditCard({ message: 'Número de tarjeta de crédito inválido' })
   creditCardNumber: string;
 
   @IsString()
@@ -84,6 +83,7 @@ export class CreateUserDto extends PartialType(UserDto) {
   @IsNotEmpty({ message: 'El apellido paterno es requerido' })
   lastName: string;
 
+  @Transform(({ value }) => value && new Date(value))
   @IsDate()
   @IsNotEmpty({ message: 'La fecha de nacimiento es requerida' })
   birthDate: Date;
@@ -105,7 +105,6 @@ export class CreateUserDto extends PartialType(UserDto) {
   @Length(16, 16, {
     message: 'El número de la tarjeta de crédito debe tener 16 dígitos',
   })
-  @IsCreditCard({ message: 'Número de tarjeta de crédito inválido' })
   creditCardNumber: string;
 
   @IsString()
