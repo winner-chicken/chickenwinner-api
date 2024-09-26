@@ -23,13 +23,17 @@ export class UsersService {
    * @throws HttpException if user already exists
    * @throws HttpException if user cannot be created
    */
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
+  async createUser(createUserDto: CreateUserDto): Promise<unknown> {
     const exists = await this.checkIfUserExists(createUserDto.email);
     if (exists) {
       throw new HttpException('User already exists', HttpStatus.CONFLICT);
     }
     const user = new this.userModel(createUserDto);
-    return user.save();
+    user.save();
+    return {
+      message: 'User created successfully',
+      status: 'code-sended',
+    };
   }
   /**
    * @param email
