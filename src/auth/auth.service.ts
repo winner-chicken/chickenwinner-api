@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { createClerkClient } from '@clerk/backend';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -18,10 +20,111 @@ export class AuthService {
     return null;
   } */
 
-  async login(user: any) {
-    const payload = { username: user.username, sub: user.userId };
-    return {
-      access_token: this.jwtService.sign(payload),
+  generateToken(user: any) {
+    const payload = { email: user.email, sub: user._id };
+    return this.jwtService.sign(payload);
+  }
+
+  sendNumber() {
+    return true;
+  }
+
+  verifyNumber(number: number) {
+    return number === 123456;
+  }
+
+  generateRandomNumber() {
+    return Math.floor(100000 + Math.random() * 900000);
+  }
+
+  async login(email: string, password: string) {
+    const user = await this.usersService.getUserByEmail(email);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.UNAUTHORIZED);
+    }
+    if (!user.password) {
+      throw new HttpException(
+        'Different signup method used, please login with the same method or reset your password',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log(isMatch);
+    if (!isMatch) {
+      throw new HttpException('Invalid credentials', HttpStatus.ACCEPTED);
+    }
+    if (!user.isActive) {
+      return {
+        message: 'User exists but is not active',
+        status: 'inactive',
+      };
+    }
+    const payload = {
+      email: user.email,
+      sub: user._id,
     };
+    return {
+      access_token: this.generateToken(payload),
+      name: user.firstName,
+      email: user.email,
+      lstName: user.lastName,
+      isVerified: user.isVerified,
+      isActive: user.isActive,
+      balance: user.balance,
+    };
+  }
+  async validateIdSession(id: string): Promise<any> {
+    try {
+      const expoKey = 'sk_test_Q93j3qhp7pZGmuRcChOEh7XLd9uIWQnp6dRapbQNvc';
+      const clerkClient = createClerkClient({
+        secretKey: expoKey,
+      });
+      const session = await clerkClient.sessions.getSession(id);
+      const userData = await clerkClient.users.getUser(session.userId);
+      return userData;
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+  async deleteSession(id: string): Promise<any> {
+    try {
+      const expoKey = 'sk_test_Q93j3qhp7pZGmuRcChOEh7XLd9uIWQnp6dRapbQNvc';
+      const clerkClient = createClerkClient({
+        secretKey: expoKey,
+      });
+      await clerkClient.sessions.revokeSession(id);
+      return {
+        message: 'Session closed successfully',
+      };
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+  async activeUser(email: string, code: number): Promise<any> {
+    try {
+      const user = await this.usersService.getUserByEmail(email);
+      if (!user) {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      }
+      if (user.isActive) {
+        return {
+          message: 'User is already active',
+        };
+      }
+      const isMatch = this.verifyNumber(code);
+      if (!isMatch) {
+        return {
+          message: 'Invalid code',
+        };
+      }
+      user.isActive = true;
+      await user.save();
+      return {
+        message: 'User activated successfully',
+      };
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
