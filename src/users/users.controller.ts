@@ -9,6 +9,12 @@ export class UsersController {
   @Post('register')
   @UsePipes(new HashpassPipe())
   async create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.createUser(createUserDto);
+    const userCreated = await this.usersService.createUser(createUserDto);
+    if (userCreated) {
+      return {
+        message: 'User created successfully',
+        status: 'code-sended',
+      };
+    }
   }
 }
