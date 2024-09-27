@@ -29,8 +29,9 @@ export class AuthService {
     return true;
   }
 
-  verifyNumber(number: number) {
-    return number === 123456;
+  validatePinCode(number: string, email: string) {
+    console.log('number', number);
+    return number === '123456';
   }
 
   generateRandomNumber() {
@@ -48,13 +49,12 @@ export class AuthService {
         HttpStatus.UNAUTHORIZED,
       );
     }
-
     const isMatch = await bcrypt.compare(password, user.password);
     console.log(isMatch);
     if (!isMatch) {
       throw new HttpException('Invalid credentials', HttpStatus.ACCEPTED);
     }
-    if (!user.isActive) {
+    if (user.isActive) {
       return {
         message: 'User exists but is not active',
         status: 'inactive',
@@ -101,7 +101,7 @@ export class AuthService {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  async activeUser(email: string, code: number): Promise<any> {
+  async activeUser(email: string, code: string): Promise<any> {
     try {
       const user = await this.usersService.getUserByEmail(email);
       if (!user) {
@@ -112,7 +112,7 @@ export class AuthService {
           message: 'User is already active',
         };
       }
-      const isMatch = this.verifyNumber(code);
+      const isMatch = this.validatePinCode(code, email);
       if (!isMatch) {
         return {
           message: 'Invalid code',
