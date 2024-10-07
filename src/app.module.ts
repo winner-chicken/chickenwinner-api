@@ -6,8 +6,10 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import configuration from './config/configuration';
 import { DatabaseModule } from './database/database.module';
+import { NotificationsModule } from './notifications/notifications.module';
 @Module({
   imports: [
+    NotificationsModule,
     AuthModule,
     UsersModule,
     ConfigModule.forRoot({
@@ -16,6 +18,7 @@ import { DatabaseModule } from './database/database.module';
       load: [configuration],
     }),
     DatabaseModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

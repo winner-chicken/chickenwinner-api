@@ -1,118 +1,73 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { Transform } from 'class-transformer';
 import {
   IsString,
-  IsOptional,
   IsEmail,
-  IsBoolean,
-  IsDate,
-  Length,
   IsUrl,
   IsNotEmpty,
-  Matches,
+  IsDate,
+  IsOptional,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+import { User } from '../entities/user.entity';
 
-export class UserDto {
-  @IsString()
-  @IsNotEmpty({ message: 'El nombre es requerido' })
+export class UserDto extends User {}
+
+export class CreateSocialUserDto extends PartialType(User) {
+  @IsString({ message: 'El nombre debe ser un texto' })
+  @IsNotEmpty({ message: 'El nombre no puede estar vacío' })
   firstName: string;
 
-  @IsString()
-  @IsOptional()
-  middleName?: string;
-
-  @IsString()
-  @IsNotEmpty({ message: 'El apellido paterno es requerido' })
+  @IsString({ message: 'El apellido debe ser un texto' })
+  @IsNotEmpty({ message: 'El apellido no puede estar vacío' })
   lastName: string;
 
-  @IsString()
-  @IsOptional()
-  maternalSurname?: string;
-
-  @IsDate()
-  @IsNotEmpty({ message: 'La fecha de nacimiento es requerida' })
-  birthDate: Date;
-
-  @IsEmail({}, { message: 'Correo electrónico inválido' })
+  @IsString({ message: 'El correo electrónico debe ser un texto' })
+  @IsEmail({}, { message: 'El correo electrónico debe ser válido' })
   email: string;
 
-  @IsString()
-  @Length(8, 20, {
-    message: 'La contraseña debe tener entre 8 y 20 caracteres',
-  })
-  password: string;
+  @IsString({ message: 'La imagen de perfil debe ser un texto' })
+  @IsUrl({}, { message: 'La imagen de perfil debe ser una URL válida' })
+  profilePicture: string;
 
-  @IsString()
-  @Length(10, 10, { message: 'El número de teléfono debe tener 10 dígitos' })
-  phoneNumber: string;
-
-  @IsString()
-  @Length(16, 16, {
-    message: 'El número de la tarjeta de crédito debe tener 16 dígitos',
-  })
-  creditCardNumber: string;
-
-  @IsString()
-  @IsNotEmpty({ message: 'La institución bancaria es requerida' })
-  bankInstitution: string;
-
-  @IsString()
-  @Length(3, 3, { message: 'El CVV debe tener 3 dígitos' })
-  @Matches(/^\d{3}$/, { message: 'CVV inválido' })
-  cvv: string;
-
-  @IsBoolean()
-  @IsNotEmpty({ message: 'El campo "Está bloqueado" es requerido' })
-  isBlocked: boolean;
-
-  @IsString()
-  @IsNotEmpty({ message: 'El username es requerido' })
-  username: string;
-
-  @IsUrl({}, { message: 'URL de imagen inválida' })
   @IsOptional()
-  profileImageUrl?: string;
+  @IsString({ message: 'El ID de Facebook debe ser un texto' })
+  facebookId?: string;
+
+  @IsOptional()
+  @IsString({ message: 'El ID de Google debe ser un texto' })
+  googleId?: string;
+
+  @IsOptional()
+  @IsString({ message: 'El ID de Apple debe ser un texto' })
+  appleId?: string;
+
+  @IsDate({ message: 'La fecha de nacimiento debe ser una fecha válida' })
+  @Type(() => Date)
+  @IsNotEmpty({ message: 'La fecha de nacimiento no puede estar vacía' })
+  birthDate: Date;
 }
 
-export class CreateUserDto extends PartialType(UserDto) {
-  @IsString()
-  @IsNotEmpty({ message: 'El nombre es requerido' })
+export class CreateEmailUserDto extends PartialType(User) {
+  @IsString({ message: 'El nombre debe ser un texto' })
+  @IsNotEmpty({ message: 'El nombre no puede estar vacío' })
   firstName: string;
 
-  @IsString()
-  @IsNotEmpty({ message: 'El apellido paterno es requerido' })
+  @IsString({ message: 'El apellido debe ser un texto' })
+  @IsNotEmpty({ message: 'El apellido no puede estar vacío' })
   lastName: string;
 
-  @Transform(({ value }) => value && new Date(value))
-  @IsDate()
-  @IsNotEmpty({ message: 'La fecha de nacimiento es requerida' })
-  birthDate: Date;
-
-  @IsEmail({}, { message: 'Correo electrónico inválido' })
-  email: string;
-
-  @IsString()
-  @Length(8, 20, {
-    message: 'La contraseña debe tener entre 8 y 20 caracteres',
-  })
+  @IsString({ message: 'La contraseña debe ser un texto' })
+  @IsNotEmpty({ message: 'La contraseña no puede estar vacía' })
   password: string;
 
-  @IsString()
-  @Length(10, 10, { message: 'El número de teléfono debe tener 10 dígitos' })
-  phoneNumber: string;
+  @IsEmail({}, { message: 'El correo electrónico debe ser válido' })
+  @IsNotEmpty({ message: 'El correo electrónico no puede estar vacío' })
+  email: string;
 
-  @IsString()
-  @Length(16, 16, {
-    message: 'El número de la tarjeta de crédito debe tener 16 dígitos',
-  })
-  creditCardNumber: string;
-
-  @IsString()
-  @IsNotEmpty({ message: 'La institución bancaria es requerida' })
-  bankInstitution: string;
-
-  @IsString()
-  @Length(3, 3, { message: 'El CVV debe tener 3 dígitos' })
-  @Matches(/^\d{3}$/, { message: 'CVV inválido' })
-  cvv: string;
+  @IsDate({ message: 'La fecha de nacimiento debe ser una fecha válida' })
+  @Type(() => Date)
+  @IsNotEmpty({ message: 'La fecha de nacimiento no puede estar vacía' })
+  birthDate: Date;
 }
+
+export class UpdateUserDto extends PartialType(UserDto) {}

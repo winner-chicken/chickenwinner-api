@@ -6,16 +6,16 @@ export class User extends UserBaseSchema {
   @Prop({ required: true })
   firstName: string;
 
-  @Prop()
+  @Prop({ default: '' })
   middleName: string;
 
-  @Prop()
+  @Prop({ required: true })
   lastName: string;
 
-  @Prop()
+  @Prop({ default: '' })
   maternalSurname: string;
 
-  @Prop()
+  @Prop({ required: true })
   birthDate: Date;
 
   @Prop({ required: true, unique: true })
@@ -24,23 +24,31 @@ export class User extends UserBaseSchema {
   @Prop()
   password: string;
 
-  @Prop({ required: true, unique: true, minlength: 10, maxlength: 10 })
+  @Prop({ minlength: 10, maxlength: 10 })
   phoneNumber: string;
 
-  @Prop({ required: true })
+  @Prop({
+    minlength: 16,
+    maxlength: 16,
+    match: /^\d{16}$/,
+    default: '0000000000000000',
+  })
   creditCardNumber: string;
 
-  @Prop({ required: true })
+  @Prop({ default: '' })
   bankInstitution: string;
 
-  @Prop()
+  @Prop({ minlength: 3, maxlength: 4 })
+  cvv: string;
+
+  @Prop({ default: '' })
   profilePicture: string;
 
   @Prop({ default: false })
-  isActive: boolean;
+  isBanned: boolean;
 
   @Prop({ default: false })
-  isVerified: boolean;
+  isActive: boolean;
 
   @Prop()
   verificationCode: string;
@@ -48,14 +56,44 @@ export class User extends UserBaseSchema {
   @Prop()
   resetPasswordCode: string;
 
-  @Prop({ required: true, minlength: 3, maxlength: 4 })
-  cvv: string;
-
-  @Prop({ required: false, default: 0.0, min: 0.0 })
+  @Prop({ default: 0.0, min: 0.0 })
   balance: number;
 
   @Prop()
   username: string;
+
+  @Prop({ default: '' })
+  expoToken: string;
+
+  @Prop({ default: '' })
+  state: string;
+
+  @Prop({ default: '' })
+  city: string;
+
+  @Prop({ default: '' })
+  address: string;
+
+  @Prop({ minlength: 5, maxlength: 5, match: /^\d{5}$/, default: '00000' })
+  postalCode: string;
+
+  @Prop({ default: '' })
+  country: string;
+
+  @Prop({ default: '' })
+  googleId: string;
+
+  @Prop({ default: '' })
+  facebookId: string;
+
+  @Prop({ default: '' })
+  appleId: string;
+
+  @Prop({ default: 0.0 })
+  latitude: number;
+
+  @Prop({ default: 0.0 })
+  longitude: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { createClerkClient } from '@clerk/backend';
@@ -7,7 +13,7 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
+    @Inject(forwardRef(() => UsersService)) private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
 
@@ -63,15 +69,13 @@ export class AuthService {
     const payload = {
       email: user.email,
       sub: user._id,
+      name: user.firstName,
+      lstName: user.lastName,
+      isActive: user.isActive,
+      balance: user.balance,
     };
     return {
       access_token: this.generateToken(payload),
-      name: user.firstName,
-      email: user.email,
-      lstName: user.lastName,
-      isVerified: user.isVerified,
-      isActive: user.isActive,
-      balance: user.balance,
     };
   }
   async validateIdSession(id: string): Promise<any> {

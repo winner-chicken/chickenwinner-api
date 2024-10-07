@@ -6,11 +6,14 @@ import {
   PipeTransform,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from 'src/users/dtos';
+import { CreateEmailUserDto } from 'src/users/dtos';
 
 @Injectable()
 export class HashpassPipe implements PipeTransform {
-  async transform(createUserDto: CreateUserDto, metadata: ArgumentMetadata) {
+  async transform(
+    createUserDto: CreateEmailUserDto,
+    metadata: ArgumentMetadata,
+  ) {
     try {
       if (createUserDto.password) {
         const hash = await bcrypt.hash(createUserDto.password, 10);
